@@ -7,4 +7,9 @@
 Forked from https://github.com/ysbecca/py-wsi
 
 1.1 Added functionality for segmentation tasks for storage types 'disk' and 'lmdb'. This allows for not only storing a label associated to the center point of the patch but also the corresponding segmentation map for each patch. 
-
+1.1增加了存储类型'disk'和'lmdb'的分割任务功能。这样不仅可以存储与patch中心点相关联的标签，还可以存储每个patch对应的分割映射。
+file changes
+1.imagepy_toolkit.py  1.1show_images_and_gt  1.2show_patch_and_gt
+2.item.py        2.1 SegItem 2.1.1get_seg_map 2.1.2get_seg_map_as_image 2.1.3seg_map
+3.patch_reader.py 3.1 generate_segmentation_patch 3.2 transform_regions 3.3 gen_full_segmentation_map
+                  3.4 tile_to_patch_size

@@ -42,7 +42,7 @@ def show_labeled_patches(images, clss):
 
     plt.show()
 
-
+# ----------------------------------------------------------
 def show_images_and_gt(images, coords, pixel_classes, seg_maps):
     """
     Show a whole WSI image together with its gt annotation, partioned into
@@ -66,6 +66,7 @@ def show_images_and_gt(images, coords, pixel_classes, seg_maps):
     print(i)
     plt.show()
 
+# ----------------------------------------------
 def show_patch_and_gt(images, seg_maps, pixel_classes, per_row, per_column):
     """
     Show WSI patch together with its gt annotation

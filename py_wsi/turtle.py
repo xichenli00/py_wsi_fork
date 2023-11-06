@@ -103,7 +103,8 @@ class Turtle(object):
             return 0, [], []
 
         # Open image and return variables.
-        slide = open_slide(self.file_dir + file_name)
+        # slide = open_slide(self.file_dir + '\\' + file_name)
+        slide = open_slide(os.path.join(self.file_dir,file_name))
         tiles = DeepZoomGenerator(slide, tile_size=tile_dim, overlap=overlap)
 
         return tiles.level_count, tiles.level_tiles, tiles.level_dimensions
@@ -122,7 +123,8 @@ class Turtle(object):
             return None
 
         # Open the file and deep zoom generator.
-        slide = open_slide(self.file_dir + file_name)
+        # slide = open_slide(self.file_dir +'\\'+ file_name)
+        slide = open_slide(os.path.join(self.file_dir,file_name))
         tiles = DeepZoomGenerator(slide, tile_size=tile_dim, overlap=overlap)
 
         # Check that tile level requested is valid.
@@ -145,6 +147,7 @@ class Turtle(object):
         """
         if select == []:
             select = np.zeros(self.num_files)
+            # 使用切片操作，将从set_id开始，以total_sets为步长的元素设置为1。
             select[set_id:self.num_files:total_sets] = 1
         else:
             # Check for invalid inputs.
@@ -153,8 +156,7 @@ class Turtle(object):
                 return []
 
         # Fetch all the patches from each selected image in dataset.
-        all_patches, all_coords, all_cls, all_labels, all_seg_maps = [], [],
-        [], [], []
+        all_patches, all_coords, all_cls, all_labels, all_seg_maps = [], [], [], [], []
         for i in range(self.num_files):
             if select[i]:
                 patches, coords, classes, labels, seg_maps = self.get_patches_from_file(self.files[i])
@@ -162,7 +164,7 @@ class Turtle(object):
                 all_coords.append(coords)
                 all_cls.append(classes)
                 all_labels.append(labels)
-                all_seg_maps.append(seg_map)
+                all_seg_maps.append(seg_maps)
 
         # Flatten the data into lists.
         all_patches = list(itertools.chain.from_iterable(x for x in all_patches))
@@ -482,7 +484,8 @@ class Turtle(object):
         total_meta_bytes = 0
 
         for file in self.files:
-            slide = open_slide(self.file_dir + file)
+            # slide = open_slide(self.file_dir +'\\'+ file)
+            slide = open_slide(os.path.join(self.file_dir,file))
             tile_size = patch_to_tile_size(patch_size, overlap)
             tiles = DeepZoomGenerator(slide, tile_size=tile_size, overlap=overlap, limit_bounds=limit_bounds)
 

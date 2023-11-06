@@ -32,6 +32,7 @@ class Item(object):
     def get_patch_as_image(self):
         return Image.fromarray(self.get_patch(), 'RGB')
 
+# ------------------------------------------------------------
 class SegItem(Item):
     """
     Subclass of Item: Stores segmentation maps together with the patches

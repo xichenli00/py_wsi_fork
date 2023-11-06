@@ -5,6 +5,10 @@ sampling as is typically needed for deep learning.
 
 Author: @ysbecca, Fabian Bongratz
 '''
+
+import os
+OPENSLIDE_PATH = r"E:\Java\openslide-win64-20221217\bin"
+os.add_dll_directory(OPENSLIDE_PATH)
 import numpy as np
 from PIL import Image, ImageDraw
 from openslide import open_slide  
@@ -25,6 +29,8 @@ def check_label_exists(label, label_map):
         print("Setting label as -1 for UNRECOGNISED LABEL.")
         print(label_map)
         return False
+
+# ------2--------------------------------------------
 def generate_segmentation_patch(seg_map_full, point, patch_size):
     """
     Generates a segmentation map for a certain patch given the level-size
@@ -39,7 +45,11 @@ def generate_segmentation_patch(seg_map_full, point, patch_size):
     #seg_patch.show()
     return seg_patch
 
-
+#  这种生成标签的方式偏差是否过大？仅仅只是通过判断点是否在region中，
+#  将坐标转换为基准分辨率
+#    converted_coords = tiles.get_tile_coordinates(level, (x, y))[0]
+#  默认值:一个基于中心点的补丁标签
+#    labels.append(generate_label(regions, region_labels, converted_coords, label_map))
 def generate_label(regions, region_labels, point, label_map):
     ''' Generates a label given an array of regions.
         - regions               array of vertices
@@ -57,9 +67,16 @@ def generate_label(regions, region_labels, point, label_map):
     # By default, we set to "Normal" if it exists in the label map.
     if check_label_exists('Normal', label_map):
         return label_map['Normal']
+    # 李西臣添加----------------------------------------
+    elif check_label_exists('normal',label_map):
+        return label_map['normal']
+    elif check_label_exists('tumor', label_map):
+        return label_map['tumor']
+    # -------------------------------------
     else:
         return -1
 
+# ---------------------------------------------------------
 def transform_regions(regions, image_size, total_image_size):
     """
     Transform the regions in regions based on the difference in image_size and
@@ -75,6 +92,7 @@ def transform_regions(regions, image_size, total_image_size):
 
     return converted_regions, factor
 
+# ----1-----------------------------------------------------------------------
 def gen_full_segmentation_map(level_dims, regions, region_labels, label_map):
     """
     Generate a segmentation map with size of the total level dimensions
@@ -118,6 +136,7 @@ def get_regions(path):
 def patch_to_tile_size(patch_size, overlap):
     return patch_size - overlap*2
 
+# -------------------------------------------------
 def tile_to_patch_size(tile_size, overlap):
     return tile_size + overlap*2
 
@@ -154,7 +173,8 @@ def sample_and_store_patches(file_name,
     '''
 
     tile_size = patch_to_tile_size(patch_size, pixel_overlap)
-    slide = open_slide(file_dir + file_name)
+    # slide = open_slide(file_dir +'\\' + file_name)
+    slide = open_slide(os.path.join(file_dir,file_name))
     tiles = DeepZoomGenerator(slide,
                               tile_size=tile_size,
                               overlap=pixel_overlap,
@@ -164,7 +184,8 @@ def sample_and_store_patches(file_name,
     level_count = tiles.level_count
     if xml_dir:
         # Expect filename of XML annotations to match SVS file name
-        regions, region_labels = get_regions(xml_dir + file_name[:-4] + ".xml")
+        # regions, region_labels = get_regions(xml_dir + "\\" + file_name[:-4] + ".xml")
+        regions, region_labels = get_regions(os.path.join(xml_dir, file_name[:-4] + ".xml"))
         if gen_segmentation_map:
             # Convert region coordinates to level coordinates
             converted_regions, factor = transform_regions(regions, level_dims[level],
@@ -185,6 +206,7 @@ def sample_and_store_patches(file_name,
     patches, coords, labels, seg_maps = [], [], [], []
     while y < y_tiles:
         while x < x_tiles:
+            # (0,1),tiles.get_tile(10, (14, 10)), dtype=np.uint8 有问题
             new_tile = np.array(tiles.get_tile(level, (x, y)), dtype=np.uint8)
             # OpenSlide calculates overlap in such a way that sometimes depending on the dimensions, edge
             # patches are smaller than the others. We will ignore such patches.
@@ -195,10 +217,12 @@ def sample_and_store_patches(file_name,
 
                 # Calculate the patch label 
                 if xml_dir:
-                    # Convert coordinates to base level resolution
+                    # Convert coordinates to base level resolution（get_tile_coordinates返回的是左上角的坐标）
                     converted_coords = tiles.get_tile_coordinates(level, (x, y))[0]
+                    # 李西臣添加一行代码：将坐标从左上角坐标转换为patch的中心点的坐标
+                    converted_coords_2 = tuple(x + int(patch_size / 2) for x in converted_coords)
                     # Default: one label for patch based on centre point
-                    labels.append(generate_label(regions, region_labels, converted_coords, label_map))
+                    labels.append(generate_label(regions, region_labels, converted_coords_2, label_map))
                     # Optionally calculate gt patch for segmentation
                     if gen_segmentation_map:
                         # Coordinates on current level resolution

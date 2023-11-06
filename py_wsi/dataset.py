@@ -118,7 +118,7 @@ def shuffle_multiple(list_of_lists):
 def fetch_dataset(turtle, set_id, total_sets, augment):
 
     if set_id > -1:
-        patches, coords, classes, labels = turtle.get_set_patches(set_id, total_sets)
+        patches, coords, classes, labels, segmaps = turtle.get_set_patches(set_id, total_sets)
 
         if augment:
             orig = np.copy(patches)

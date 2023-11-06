@@ -139,5 +139,9 @@ def save_to_disk(db_location, patches, coords, file_name, labels, seg_maps):
 
         # Save the image and optionally ground truth segmentation map
         Image.fromarray(patch).save(db_location + patch_fname + ".png")
+        # 李西臣修改
+        # Image.fromarray(patch).save(patch_fname + ".png")
         if save_seg_maps:
             seg_maps[i].save(db_location + seg_patch_fname + ".png")
+            # 李西臣修改
+            # seg_maps[i].save(seg_patch_fname + ".png")
