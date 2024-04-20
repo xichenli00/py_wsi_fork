@@ -57,8 +57,8 @@ import py_wsi.imagepy_toolkit as tk
 file_dir = r"H:\gliomaAnnotation\svs\wsi_xml_data"
 db_location = r"H:\gliomaAnnotation\svs\wsi_xml_data"
 xml_dir = file_dir
-patch_size = 1024
-level = 16
+patch_size = 512
+level = 17 # 20倍率
 db_name = "patch_db"
 overlap = 0
 
@@ -79,7 +79,7 @@ print("LMDB name:           " + str(turtle.db_name))
 print("File names:          " + str(turtle.files))
 print("XML files found:     " + str(turtle.get_xml_files()))
 
-level_count, level_tiles, level_dims = turtle.retrieve_tile_dimensions(file_name='1.svs', patch_size=1024)
+level_count, level_tiles, level_dims = turtle.retrieve_tile_dimensions(file_name='1.svs', patch_size=512)
 print("Level count:         " + str(level_count))
 print("Level tiles:         " + str(level_tiles))
 print("Level dimensions:    " + str(level_dims))
